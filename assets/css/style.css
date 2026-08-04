@@ -1,0 +1,231 @@
+/* ==================================================================
+   assets/css/style.css
+   Estilo mínimo e funcional. O objetivo aqui é apenas garantir que
+   as telas fiquem legíveis e utilizáveis durante os testes das
+   funcionalidades. Refinamento visual fica para uma etapa posterior.
+   ================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background: #f2f2f2;
+    color: #222;
+}
+
+a { color: #1a4f8b; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- Topo ---------- */
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a2b3c;
+    color: #fff;
+    padding: 10px 16px;
+}
+.topo-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.2em; font-weight: bold; }
+.botao-menu {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.4em;
+    cursor: pointer;
+}
+.topo-usuario { display: flex; align-items: center; gap: 12px; font-size: 0.9em; }
+.link-sair { color: #fff; text-decoration: underline; }
+
+/* ---------- Layout (sidebar + conteúdo) ---------- */
+.wrapper { display: flex; min-height: calc(100vh - 90px); }
+
+.sidebar { width: 220px; background: #23374d; flex-shrink: 0; }
+.sidebar ul { list-style: none; margin: 0; padding: 10px 0; }
+.sidebar li a {
+    display: block;
+    padding: 10px 18px;
+    color: #dce6f0;
+}
+.sidebar li a:hover { background: #2f4a67; text-decoration: none; }
+.sidebar li.ativo a { background: #1a4f8b; color: #fff; font-weight: bold; }
+
+.conteudo { flex: 1; padding: 20px; }
+
+.rodape { text-align: center; padding: 10px; font-size: 0.8em; color: #666; }
+
+/* ---------- Página de login ---------- */
+.pagina-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #1a2b3c;
+}
+.caixa-login {
+    background: #fff;
+    padding: 30px;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+}
+.caixa-login h1 { margin: 0 0 4px; }
+.subtitulo { color: #666; margin: 0 0 16px; font-size: 0.9em; }
+.login-dica { font-size: 0.75em; color: #888; margin-top: 16px; }
+
+/* ---------- Formulários ---------- */
+.formulario { max-width: 600px; display: flex; flex-direction: column; }
+.formulario label { margin-top: 12px; font-weight: bold; font-size: 0.9em; }
+.formulario input,
+.formulario select,
+.formulario textarea,
+.caixa-login input {
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 100%;
+}
+.formulario small { color: #777; font-size: 0.8em; }
+.linha-formulario { display: flex; gap: 16px; flex-wrap: wrap; }
+.linha-formulario > div { flex: 1; min-width: 180px; }
+.acoes-formulario { margin-top: 20px; display: flex; gap: 10px; }
+
+.form-busca, .form-filtros {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.form-busca input, .form-filtros input, .form-filtros select {
+    padding: 7px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.form-inline { display: inline; margin: 0; }
+.rotulo-inline { font-size: 0.9em; }
+
+/* ---------- Botões ---------- */
+.botao {
+    display: inline-block;
+    background: #1a4f8b;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+.botao:hover { background: #163f70; text-decoration: none; color: #fff; }
+.botao-largo { width: 100%; margin-top: 16px; }
+.botao-secundario { background: #888; }
+.botao-secundario:hover { background: #6e6e6e; }
+.botao-sucesso { background: #2e7d32; }
+.botao-sucesso:hover { background: #245e27; }
+.botao-alerta { background: #b71c1c; }
+.botao-alerta:hover { background: #8f1515; }
+
+.link-acao {
+    background: none;
+    border: none;
+    color: #1a4f8b;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 0;
+}
+.texto-esmaecido { color: #999; font-size: 0.85em; }
+
+/* ---------- Alertas / mensagens ---------- */
+.alerta { padding: 10px 16px; margin: 0; font-size: 0.9em; }
+.alerta-sucesso { background: #d7f5dc; color: #205c2c; }
+.alerta-erro { background: #fbdada; color: #7a1f1f; }
+
+/* ---------- Tabelas ---------- */
+.tabela { width: 100%; border-collapse: collapse; background: #fff; margin-top: 10px; }
+.tabela th, .tabela td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e2e2;
+    text-align: left;
+    font-size: 0.9em;
+}
+.tabela th { background: #eef1f5; }
+.tabela .acoes a, .tabela .acoes button { margin-right: 8px; }
+.linha-alerta { background: #fff4e5; }
+
+.texto-vazio { color: #777; font-style: italic; }
+
+/* ---------- Etiquetas de status ---------- */
+.etiqueta { padding: 2px 8px; border-radius: 3px; font-size: 0.8em; color: #fff; }
+.etiqueta-ativo { background: #2e7d32; }
+.etiqueta-inativo { background: #888; }
+.etiqueta-entrada { background: #2e7d32; }
+.etiqueta-saida { background: #b71c1c; }
+
+/* ---------- Dashboard ---------- */
+.topo-pagina { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.descricao-pagina { color: #555; margin-top: -6px; }
+
+.cartoes { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.cartao {
+    background: #fff;
+    border-radius: 6px;
+    padding: 14px 18px;
+    min-width: 140px;
+    flex: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.cartao-titulo { display: block; font-size: 0.8em; color: #666; }
+.cartao-valor { display: block; font-size: 1.8em; font-weight: bold; }
+.cartao-alerta { border-left: 4px solid #b71c1c; }
+
+.grade-dashboard { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+.painel { background: #fff; border-radius: 6px; padding: 16px; flex: 1; min-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.painel h2 { margin-top: 0; font-size: 1.05em; }
+
+.grade-detalhes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+.descricao-produto { margin-top: 12px; }
+
+.cartoes-relatorios { display: flex; flex-wrap: wrap; gap: 14px; }
+.cartao-relatorio {
+    display: block;
+    background: #fff;
+    border-radius: 6px;
+    padding: 16px;
+    width: 220px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #222;
+}
+.cartao-relatorio:hover { background: #eef1f5; text-decoration: none; }
+.cartao-relatorio h3 { margin: 0 0 6px; color: #1a4f8b; }
+.cartao-relatorio p { margin: 0; font-size: 0.85em; color: #555; }
+
+.resumo-relatorio { background: #fff; padding: 10px 14px; border-radius: 4px; font-size: 0.9em; }
+
+.caixa-erro { background: #fff; padding: 30px; border-radius: 6px; text-align: center; max-width: 500px; margin: 40px auto; }
+.caixa-erro h1 { font-size: 3em; color: #b71c1c; margin: 0; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 800px) {
+    .botao-menu { display: inline-block; }
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease-in-out;
+        z-index: 100;
+    }
+    .sidebar.aberta { transform: translateX(0); }
+    .wrapper { min-height: auto; }
+    .linha-formulario { flex-direction: column; }
+    .cartoes { flex-direction: column; }
+}
+
+@media print {
+    .topo, .sidebar, .rodape, .form-filtros, .form-busca, .acoes { display: none !important; }
+    .conteudo { padding: 0; }
+}
