@@ -1,0 +1,154 @@
+Only in /mnt/data/SmartControl_Acessivel_Demo: ACESSIBILIDADE_PATCH.diff
+diff -ru /mnt/data/tcc_extract/TCC-main/assets/css/style.css /mnt/data/SmartControl_Acessivel_Demo/assets/css/style.css
+--- /mnt/data/tcc_extract/TCC-main/assets/css/style.css	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/assets/css/style.css	2026-08-24 11:31:35.954044337 +0000
+@@ -73,7 +73,7 @@
+ }
+ .caixa-login h1 { margin: 0 0 4px; }
+ .subtitulo { color: #666; margin: 0 0 16px; font-size: 0.9em; }
+-.login-dica { font-size: 0.75em; color: #888; margin-top: 16px; }
++.login-dica { font-size: 0.75em; color: #555; margin-top: 16px; }
+ 
+ /* ---------- Formulários ---------- */
+ .formulario { max-width: 600px; display: flex; flex-direction: column; }
+@@ -138,7 +138,7 @@
+     font-size: 0.9em;
+     padding: 0;
+ }
+-.texto-esmaecido { color: #999; font-size: 0.85em; }
++.texto-esmaecido { color: #555; font-size: 0.85em; }
+ 
+ /* ---------- Alertas / mensagens ---------- */
+ .alerta { padding: 10px 16px; margin: 0; font-size: 0.9em; }
+@@ -229,3 +229,35 @@
+     .topo, .sidebar, .rodape, .form-filtros, .form-busca, .acoes { display: none !important; }
+     .conteudo { padding: 0; }
+ }
++
++
++/* ---------- Acessibilidade WCAG 2.1 ---------- */
++.skip-link {
++    position: absolute;
++    left: 12px;
++    top: -60px;
++    z-index: 9999;
++    background: #fff;
++    color: #111;
++    padding: 10px 14px;
++    border: 3px solid #ffbf47;
++    border-radius: 4px;
++}
++.skip-link:focus { top: 12px; }
++
++a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
++    outline: 3px solid #ffbf47;
++    outline-offset: 3px;
++}
++
++.sr-only {
++    position: absolute !important;
++    width: 1px !important;
++    height: 1px !important;
++    padding: 0 !important;
++    margin: -1px !important;
++    overflow: hidden !important;
++    clip: rect(0, 0, 0, 0) !important;
++    white-space: nowrap !important;
++    border: 0 !important;
++}
+diff -ru /mnt/data/tcc_extract/TCC-main/assets/js/script.js /mnt/data/SmartControl_Acessivel_Demo/assets/js/script.js
+--- /mnt/data/tcc_extract/TCC-main/assets/js/script.js	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/assets/js/script.js	2026-08-24 11:31:35.953934138 +0000
+@@ -15,7 +15,9 @@
+ 
+     if (botaoMenu && sidebar) {
+         botaoMenu.addEventListener('click', function () {
+-            sidebar.classList.toggle('aberta');
++            var aberta = sidebar.classList.toggle('aberta');
++            botaoMenu.setAttribute('aria-expanded', aberta ? 'true' : 'false');
++            botaoMenu.setAttribute('aria-label', aberta ? 'Fechar menu' : 'Abrir menu');
+         });
+     }
+ 
+diff -ru /mnt/data/tcc_extract/TCC-main/auth/login.php /mnt/data/SmartControl_Acessivel_Demo/auth/login.php
+--- /mnt/data/tcc_extract/TCC-main/auth/login.php	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/auth/login.php	2026-08-24 11:31:35.954283983 +0000
+@@ -58,15 +58,15 @@
+         <p class="subtitulo">Sistema de Gerenciamento de Estoque</p>
+ 
+         <?php if ($erro): ?>
+-            <div class="alerta alerta-erro"><?php echo limpar($erro); ?></div>
++            <div class="alerta alerta-erro" role="alert"><?php echo limpar($erro); ?></div>
+         <?php endif; ?>
+ 
+         <form method="POST" action="">
+             <label for="email">E-mail</label>
+-            <input type="email" name="email" id="email" required autofocus value="<?php echo limpar($email ?? ''); ?>">
++            <input type="email" name="email" id="email" required autofocus autocomplete="email" value="<?php echo limpar($email ?? ''); ?>">
+ 
+             <label for="senha">Senha</label>
+-            <input type="password" name="senha" id="senha" required>
++            <input type="password" name="senha" id="senha" required autocomplete="current-password">
+ 
+             <button type="submit" class="botao botao-largo">Entrar</button>
+         </form>
+diff -ru /mnt/data/tcc_extract/TCC-main/dashboard/index.php /mnt/data/SmartControl_Acessivel_Demo/dashboard/index.php
+--- /mnt/data/tcc_extract/TCC-main/dashboard/index.php	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/dashboard/index.php	2026-08-24 11:31:35.954209980 +0000
+@@ -135,7 +135,17 @@
+     <div class="grade-dashboard">
+         <div class="painel">
+             <h2>Movimentações dos últimos 7 dias</h2>
+-            <canvas id="graficoSemana" width="400" height="200"></canvas>
++            <canvas id="graficoSemana" width="400" height="200" role="img" aria-describedby="descricaoGraficoSemana"></canvas>
++            <p id="descricaoGraficoSemana" class="sr-only">Gráfico de movimentações dos últimos sete dias. A tabela acessível a seguir contém os mesmos valores de entradas e saídas.</p>
++            <table class="sr-only">
++                <caption>Dados do gráfico de movimentações dos últimos 7 dias</caption>
++                <thead><tr><th scope="col">Dia</th><th scope="col">Entradas</th><th scope="col">Saídas</th></tr></thead>
++                <tbody>
++                <?php foreach ($labelsSemana as $diaIso => $diaLabel): ?>
++                    <tr><th scope="row"><?php echo limpar($diaLabel); ?></th><td><?php echo (int) $entradasSemana[$diaIso]; ?></td><td><?php echo (int) $saidasSemana[$diaIso]; ?></td></tr>
++                <?php endforeach; ?>
++                </tbody>
++            </table>
+         </div>
+ 
+         <div class="painel">
+diff -ru /mnt/data/tcc_extract/TCC-main/includes/header.php /mnt/data/SmartControl_Acessivel_Demo/includes/header.php
+--- /mnt/data/tcc_extract/TCC-main/includes/header.php	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/includes/header.php	2026-08-24 11:31:35.953754849 +0000
+@@ -15,9 +15,10 @@
+     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
+ </head>
+ <body>
++<a class="skip-link" href="#conteudo-principal">Pular para o conteúdo principal</a>
+ <header class="topo">
+     <div class="topo-titulo">
+-        <button class="botao-menu" id="botaoMenu" aria-label="Abrir menu">&#9776;</button>
++        <button class="botao-menu" id="botaoMenu" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+         <span>SmartControl</span>
+     </div>
+     <div class="topo-usuario">
+@@ -29,8 +30,8 @@
+     </div>
+ </header>
+ <?php if ($mensagem): ?>
+-    <div class="alerta alerta-<?php echo $mensagem['tipo']; ?>">
++    <div class="alerta alerta-<?php echo $mensagem['tipo']; ?>" role="status" aria-live="polite">
+         <?php echo limpar($mensagem['texto']); ?>
+     </div>
+ <?php endif; ?>
+-<div class="wrapper">
++<div class="wrapper" id="conteudo-principal" tabindex="-1">
+diff -ru /mnt/data/tcc_extract/TCC-main/includes/sidebar.php /mnt/data/SmartControl_Acessivel_Demo/includes/sidebar.php
+--- /mnt/data/tcc_extract/TCC-main/includes/sidebar.php	2026-08-04 15:14:08.000000000 +0000
++++ /mnt/data/SmartControl_Acessivel_Demo/includes/sidebar.php	2026-08-24 11:31:35.953881739 +0000
+@@ -12,7 +12,7 @@
+     return $pasta === $pastaAtual ? 'ativo' : '';
+ }
+ ?>
+-<nav class="sidebar" id="sidebar">
++<nav class="sidebar" id="sidebar" aria-label="Navegação principal">
+     <ul>
+         <li class="<?php echo itemAtivo('dashboard', $pastaAtual); ?>">
+             <a href="<?php echo BASE_URL; ?>/dashboard/index.php">Dashboard</a>

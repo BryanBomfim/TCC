@@ -1,0 +1,287 @@
+/* ==================================================================
+   SmartControl | Acessibilidade
+   Recursos visuais e estados ativados por assets/js/accessibility.js.
+   ================================================================== */
+
+.skip-link {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 10000;
+    transform: translateY(-180%);
+    padding: 10px 14px;
+    border: 3px solid #ffbf47;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111111;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 3px;
+}
+
+.acessibilidade {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9998;
+    font-size: 16px;
+}
+
+.acessibilidade-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: #0f3d6e;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(16, 39, 66, 0.28);
+}
+
+.acessibilidade-toggle:hover {
+    background: #0a315a;
+}
+
+.acessibilidade-painel {
+    position: absolute;
+    right: 0;
+    bottom: 58px;
+    width: min(340px, calc(100vw - 28px));
+    max-height: min(620px, calc(100vh - 100px));
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #172033;
+    box-shadow: 0 18px 52px rgba(15, 23, 42, 0.24);
+}
+
+.acessibilidade-painel[hidden] {
+    display: none;
+}
+
+.acessibilidade-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.acessibilidade-cabecalho h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.acessibilidade-fechar {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.acessibilidade-grupo {
+    display: grid;
+    gap: 8px;
+    padding: 12px 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.acessibilidade-rotulo {
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.acessibilidade-acoes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.acessibilidade-acoes button,
+.acessibilidade-opcao,
+.acessibilidade-restaurar {
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid #bac7d6;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #172033;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.acessibilidade-acoes button:hover,
+.acessibilidade-opcao:hover,
+.acessibilidade-restaurar:hover {
+    background: #edf4fb;
+}
+
+.acessibilidade-opcao[aria-pressed="true"] {
+    border-color: #0f5e9c;
+    background: #e2f0fb;
+    color: #0c426f;
+}
+
+.acessibilidade-acoes-leitura {
+    grid-template-columns: 1.25fr 1fr 1fr;
+}
+
+.acessibilidade-restaurar {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.acessibilidade-ajuda {
+    margin: 12px 0 0;
+    color: #526172;
+    font-size: 0.78rem;
+}
+
+.acessibilidade-ajuda kbd {
+    padding: 2px 5px;
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: #f8fafc;
+    color: #172033;
+    font-family: inherit;
+}
+
+body.a11y-highlight-links a:not(.botao):not(.acessibilidade-toggle) {
+    text-decoration: underline !important;
+    text-decoration-thickness: 0.16em !important;
+    text-underline-offset: 0.18em !important;
+}
+
+body.a11y-high-contrast {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.a11y-high-contrast :where(
+    .topo,
+    .sidebar,
+    .conteudo,
+    .painel,
+    .cartao,
+    .cartao-relatorio,
+    .caixa-login,
+    .caixa-erro,
+    .resumo-relatorio,
+    .rodape,
+    .acessibilidade-painel
+) {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body.a11y-high-contrast :where(p, small, label, span, h1, h2, h3, strong, th, td) {
+    color: inherit;
+}
+
+body.a11y-high-contrast a {
+    color: #66d9ff !important;
+}
+
+body.a11y-high-contrast :where(input, select, textarea) {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body.a11y-high-contrast :where(.botao, button, .acessibilidade-toggle) {
+    border: 2px solid #ffffff !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.a11y-high-contrast .tabela th,
+body.a11y-high-contrast .tabela td {
+    border-color: #ffffff !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.a11y-high-contrast .alerta-sucesso,
+body.a11y-high-contrast .alerta-erro {
+    border: 2px solid #ffffff;
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 640px) {
+    .acessibilidade {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .acessibilidade-toggle span:last-child {
+        display: none;
+    }
+
+    .acessibilidade-toggle {
+        width: 48px;
+        height: 48px;
+        justify-content: center;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+
+    .acessibilidade-painel {
+        position: fixed;
+        right: 12px;
+        bottom: 70px;
+        left: 12px;
+        width: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

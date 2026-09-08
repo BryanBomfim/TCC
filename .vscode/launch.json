@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Abrir SmartControl no Chrome",
+            "url": "http://localhost/smartcontrol",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}
