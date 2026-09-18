@@ -10,7 +10,7 @@
     z-index: 10000;
     transform: translateY(-180%);
     padding: 10px 14px;
-    border: 3px solid #ffbf47;
+    border: 3px solid var(--smart-blue);
     border-radius: 8px;
     background: #ffffff;
     color: #111111;
@@ -35,7 +35,7 @@
 }
 
 :where(a, button, input, select, textarea, summary):focus-visible {
-    outline: 3px solid #ffbf47;
+    outline: 3px solid var(--smart-blue);
     outline-offset: 3px;
 }
 
@@ -55,16 +55,17 @@
     padding: 10px 14px;
     border: 0;
     border-radius: 999px;
-    background: #0f3d6e;
+    background: var(--smart-blue);
     color: #ffffff;
-    font: inherit;
+    font-family: var(--fonte-destaque);
+    font-size: 0.88rem;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(16, 39, 66, 0.28);
+    box-shadow: var(--sombra-elevada);
 }
 
 .acessibilidade-toggle:hover {
-    background: #0a315a;
+    background: var(--cor-primaria-hover);
 }
 
 .acessibilidade-painel {
@@ -153,9 +154,9 @@
 }
 
 .acessibilidade-opcao[aria-pressed="true"] {
-    border-color: #0f5e9c;
-    background: #e2f0fb;
-    color: #0c426f;
+    border-color: var(--smart-blue);
+    background: rgba(96, 165, 250, 0.12);
+    color: var(--cor-primaria-hover);
 }
 
 .acessibilidade-acoes-leitura {
@@ -189,6 +190,13 @@ body.a11y-highlight-links a:not(.botao):not(.acessibilidade-toggle) {
     text-underline-offset: 0.18em !important;
 }
 
+.sidebar a:focus-visible,
+.topo a:focus-visible,
+.topo button:focus-visible,
+body.a11y-high-contrast :focus-visible {
+    outline-color: var(--smart-light-blue);
+}
+
 body.a11y-high-contrast {
     background: #000000 !important;
     color: #ffffff !important;
@@ -200,10 +208,12 @@ body.a11y-high-contrast :where(
     .conteudo,
     .painel,
     .cartao,
+    .cartoes,
     .cartao-relatorio,
     .caixa-login,
     .caixa-erro,
     .resumo-relatorio,
+    .formulario,
     .rodape,
     .acessibilidade-painel
 ) {
