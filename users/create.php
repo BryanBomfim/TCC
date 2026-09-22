@@ -27,8 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'Preencha todos os campos obrigatórios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $erro = 'Informe um e-mail válido.';
-        } elseif (strlen($senha) < 6) {
-            $erro = 'A senha deve ter no mínimo 6 caracteres.';
+        } elseif (strlen($senha) < 8) {
+            $erro = 'A senha deve ter no mínimo 8 caracteres.';
         } elseif (!in_array($perfil, ['administrador', 'funcionario'], true)) {
             $erro = 'Perfil inválido.';
         } else {
@@ -224,8 +224,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         "Este link é válido por 24 horas.";
 
                     /*
-                     * Tenta enviar antes de concluir o cadastro.
+                     * Confirma primeiro os dados locais. O cadastro não deve
+                     * depender da disponibilidade de um serviço SMTP externo.
+                     * Se o envio falhar, a conta permanece pendente e o e-mail
+                     * pode ser reenviado pela tela de verificação.
                      */
+                    $pdo->commit();
+
+                    registrarAuditoria(
+                        'CRIAR',
+                        'Usuários',
+                        $usuarioId,
+                        'Usuário cadastrado: ' . $nome . '.',
+                        null,
+                        [
+                            'nome' => $nome,
+                            'email' => strtolower($email),
+                            'perfil' => $perfil,
+                            'ativo' => 1,
+                            'email_verificado' => false,
+                        ]
+                    );
+
                     $emailEnviado = enviarEmail(
                         strtolower($email),
                         $nome,
@@ -234,38 +254,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $conteudoTexto
                     );
 
-                    if (!$emailEnviado) {
-
-                        /*
-                         * Se o e-mail não sair, desfazemos o cadastro.
-                         * Assim não deixamos uma conta presa sem verificação.
-                         */
-                        $pdo->rollBack();
-
-                        $erro =
-                            'Não foi possível enviar o e-mail de verificação. '
-                            . 'O usuário não foi cadastrado. Tente novamente.';
-
-                    } else {
-
-                        $pdo->commit();
-
+                    if ($emailEnviado) {
                         definirMensagem(
                             'sucesso',
                             'Usuário cadastrado! Um e-mail de verificação foi enviado.'
                         );
-
-                        header(
-                            'Location: ' .
-                            BASE_URL .
-                            '/users/list.php'
+                    } else {
+                        definirMensagem(
+                            'alerta',
+                            'Usuário cadastrado, mas o e-mail de verificação não pôde ser enviado. '
+                            . 'Configure o SMTP e use a opção de reenviar verificação.'
                         );
-
-                        exit;
                     }
+
+                    header(
+                        'Location: ' .
+                        BASE_URL .
+                        '/users/list.php'
+                    );
+
+                    exit;
 
                 } catch (Throwable $e) {
 
+                    error_log('Erro ao cadastrar usuário: ' . $e->getMessage());
                     if ($pdo->inTransaction()) {
                         $pdo->rollBack();
                     }
@@ -283,6 +295,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Novo Usuário</h1>
 
     <?php if ($erro): ?>
@@ -299,7 +312,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
         <input type="email" name="email" id="email" required value="<?php echo limpar($email); ?>">
 
         <label for="senha">Senha *</label>
-        <input type="password" name="senha" id="senha" required minlength="6">
+        <input type="password" name="senha" id="senha" required minlength="8">
 
         <label for="perfil">Perfil *</label>
         <select name="perfil" id="perfil" required>

@@ -162,20 +162,34 @@ if ($filtroEstoqueBaixo) {
 }
 
 /*
- * Ordenação.
+ * Paginação.
  */
+$pagina = max(1, (int) ($_GET['pagina'] ?? 1));
+$porPagina = 25;
+
+$sqlContagem = "SELECT COUNT(*) FROM (" . $sql . ") AS produtos_filtrados";
+$stmtContagem = $pdo->prepare($sqlContagem);
+$stmtContagem->execute($parametros);
+$totalProdutosFiltrados = (int) $stmtContagem->fetchColumn();
+$totalPaginas = max(1, (int) ceil($totalProdutosFiltrados / $porPagina));
+$pagina = min($pagina, $totalPaginas);
+$offset = ($pagina - 1) * $porPagina;
+
 $sql .= "
     ORDER BY p.nome ASC
+    LIMIT {$porPagina} OFFSET {$offset}
 ";
 
 $stmt = $pdo->prepare($sql);
+$stmt->execute($parametros);
+$produtos = $stmt->fetchAll();
 
-$stmt->execute(
-    $parametros
-);
-
-$produtos =
-    $stmt->fetchAll();
+function urlProdutosPagina(int $numero): string
+{
+    $query = $_GET;
+    $query['pagina'] = $numero;
+    return BASE_URL . '/products/list.php?' . http_build_query($query);
+}
 
 /*
  * ================================================================
@@ -219,6 +233,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <!-- =========================================================
          TOPO
@@ -552,6 +567,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
         </table>
 
+    <?php endif; ?>
+
+    <?php if ($totalPaginas > 1): ?>
+        <nav class="paginacao" aria-label="Paginação dos produtos">
+            <?php if ($pagina > 1): ?><a href="<?php echo limpar(urlProdutosPagina($pagina - 1)); ?>">Anterior</a><?php endif; ?>
+            <span>Página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?> (<?php echo $totalProdutosFiltrados; ?> produtos)</span>
+            <?php if ($pagina < $totalPaginas): ?><a href="<?php echo limpar(urlProdutosPagina($pagina + 1)); ?>">Próxima</a><?php endif; ?>
+        </nav>
     <?php endif; ?>
 
 </div>

@@ -20,13 +20,14 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <div class="topo-pagina">
         <h1>Usuários</h1>
         <a href="<?php echo BASE_URL; ?>/users/create.php" class="botao">+ Novo Usuário</a>
     </div>
 
     <form method="GET" action="" class="form-busca">
-        <input type="text" name="busca" placeholder="Buscar por nome ou e-mail..." value="<?php echo limpar($busca); ?>" aria-label="Buscar">>
+        <input type="text" name="busca" placeholder="Buscar por nome ou e-mail..." value="<?php echo limpar($busca); ?>" aria-label="Buscar">
         <button type="submit" class="botao">Buscar</button>
         <?php if ($busca !== ''): ?>
             <a href="<?php echo BASE_URL; ?>/users/list.php" class="botao botao-secundario">Limpar</a>

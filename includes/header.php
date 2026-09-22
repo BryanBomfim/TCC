@@ -40,7 +40,7 @@ if (isset($_SESSION['usuario_id'])) {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/accessibility.css">
 </head>
-<body>
+<body data-base-url="<?php echo limpar(BASE_URL); ?>">
     <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo principal</a>
 
     <?php require __DIR__ . '/accessibility.php'; ?>
@@ -72,7 +72,11 @@ if (isset($_SESSION['usuario_id'])) {
                     : 'Nenhuma notificação não lida';
                 ?>"
             >
-                <span class="icone-notificacao" aria-hidden="true">🔔</span>
+                <span class="icone-notificacao" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" focusable="false" aria-hidden="true">
+                        <path d="M12 22a2.5 2.5 0 0 0 2.35-1.65h-4.7A2.5 2.5 0 0 0 12 22Zm7-5h-1V11a6 6 0 1 0-12 0v6H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2Zm-3 0H8v-6a4 4 0 1 1 8 0v6Z" fill="currentColor"/>
+                    </svg>
+                </span>
 
                 <?php if ($totalNotificacoesNaoLidas > 0): ?>
                     <span class="contador-notificacoes" aria-hidden="true">

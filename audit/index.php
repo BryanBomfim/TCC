@@ -171,39 +171,55 @@ if ($filtroUsuario > 0) {
 /*
  * Data inicial.
  */
-if ($dataInicio !== '') {
+if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataInicio)) {
 
     $sql .= "
-        AND DATE(criado_em) >= :data_inicio
+        AND criado_em >= :data_inicio
     ";
 
-    $parametros[':data_inicio'] = $dataInicio;
+    $parametros[':data_inicio'] = $dataInicio . ' 00:00:00';
 }
 
 /*
  * Data final.
  */
-if ($dataFim !== '') {
+if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataFim)) {
 
     $sql .= "
-        AND DATE(criado_em) <= :data_fim
+        AND criado_em <= :data_fim
     ";
 
-    $parametros[':data_fim'] = $dataFim;
+    $parametros[':data_fim'] = $dataFim . ' 23:59:59';
 }
 
 /*
- * Registros mais recentes aparecem primeiro.
+ * Paginação evita carregar milhares de registros de auditoria.
  */
+$pagina = max(1, (int) ($_GET['pagina'] ?? 1));
+$porPagina = 50;
+$stmtTotal = $pdo->prepare("SELECT COUNT(*) FROM (" . $sql . ") AS auditoria_filtrada");
+$stmtTotal->execute($parametros);
+$totalLogs = (int) $stmtTotal->fetchColumn();
+$totalPaginas = max(1, (int) ceil($totalLogs / $porPagina));
+$pagina = min($pagina, $totalPaginas);
+$offset = ($pagina - 1) * $porPagina;
+
+/* Registros mais recentes aparecem primeiro. */
 $sql .= "
     ORDER BY criado_em DESC, id DESC
+    LIMIT {$porPagina} OFFSET {$offset}
 ";
 
 $stmt = $pdo->prepare($sql);
-
 $stmt->execute($parametros);
-
 $logs = $stmt->fetchAll();
+
+function urlAuditoriaPagina(int $numero): string
+{
+    $query = $_GET;
+    $query['pagina'] = $numero;
+    return BASE_URL . '/audit/index.php?' . http_build_query($query);
+}
 
 /*
  * ---------------------------------------------------------------
@@ -245,6 +261,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <div class="topo-pagina">
 
@@ -336,7 +353,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
             De:
 
-            <input type="date" name="data_inicio" value="<?php echo limpar($dataInicio); ?>" aria-label="Data inicial">>
+            <input type="date" name="data_inicio" value="<?php echo limpar($dataInicio); ?>" aria-label="Data inicial">
 
         </label>
 
@@ -345,7 +362,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
             Até:
 
-            <input type="date" name="data_fim" value="<?php echo limpar($dataFim); ?>" aria-label="Data final">>
+            <input type="date" name="data_fim" value="<?php echo limpar($dataFim); ?>" aria-label="Data final">
 
         </label>
 
@@ -371,6 +388,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
     <?php else: ?>
 
+        <div class="tabela-responsiva">
         <table class="tabela">
 
             <thead>
@@ -676,6 +694,15 @@ require_once __DIR__ . '/../includes/sidebar.php';
             </tbody>
 
         </table>
+        </div>
+
+        <?php if ($totalPaginas > 1): ?>
+            <nav class="paginacao" aria-label="Paginação da auditoria">
+                <?php if ($pagina > 1): ?><a href="<?php echo limpar(urlAuditoriaPagina($pagina - 1)); ?>">Anterior</a><?php endif; ?>
+                <span>Página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?> (<?php echo $totalLogs; ?> registros)</span>
+                <?php if ($pagina < $totalPaginas): ?><a href="<?php echo limpar(urlAuditoriaPagina($pagina + 1)); ?>">Próxima</a><?php endif; ?>
+            </nav>
+        <?php endif; ?>
 
     <?php endif; ?>
 

@@ -53,6 +53,9 @@ function itemAtivo(string $pasta, string $pastaAtual): string
             <li class="<?php echo itemAtivo('settings', $pastaAtual); ?>">
                 <a href="<?php echo BASE_URL; ?>/settings/index.php">Configurações</a>
             </li>
+            <li>
+                <a href="<?php echo BASE_URL; ?>/settings/api.php">API REST</a>
+            </li>
         <?php endif; ?>
     </ul>
 </nav>

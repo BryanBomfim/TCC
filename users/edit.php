@@ -34,17 +34,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'Preencha todos os campos obrigatórios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $erro = 'Informe um e-mail válido.';
-        } elseif ($senha !== '' && strlen($senha) < 6) {
-            $erro = 'A nova senha deve ter no mínimo 6 caracteres.';
+        } elseif ($senha !== '' && strlen($senha) < 8) {
+            $erro = 'A nova senha deve ter no mínimo 8 caracteres.';
         } elseif (!in_array($perfil, ['administrador', 'funcionario'], true)) {
             $erro = 'Perfil inválido.';
-        } else {
+        } elseif ($id === (int) $_SESSION['usuario_id'] && $perfil !== $usuario['perfil']) {
+            $erro = 'Altere o perfil da sua própria conta usando outro administrador.';
+        } elseif ($usuario['perfil'] === 'administrador' && $perfil !== 'administrador') {
+            $totalAdmins = (int) $pdo->query("SELECT COUNT(*) FROM usuarios WHERE perfil = 'administrador' AND ativo = 1")->fetchColumn();
+            if ($totalAdmins <= 1 && (int) $usuario['ativo'] === 1) {
+                $erro = 'O sistema precisa manter pelo menos um administrador ativo.';
+            }
+        }
+
+        if ($erro === '') {
             $stmtVerifica = $pdo->prepare("SELECT id FROM usuarios WHERE email = :email AND id != :id");
             $stmtVerifica->execute([':email' => $email, ':id' => $id]);
 
             if ($stmtVerifica->fetch()) {
                 $erro = 'Já existe outro usuário cadastrado com este e-mail.';
             } else {
+                $dadosAnteriores = ['nome' => $usuario['nome'], 'email' => $usuario['email'], 'perfil' => $usuario['perfil'], 'ativo' => (int) $usuario['ativo']];
                 if ($senha !== '') {
                     $hash = password_hash($senha, PASSWORD_DEFAULT);
                     $stmtUpdate = $pdo->prepare("
@@ -62,6 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
 
+                registrarAuditoria('EDITAR', 'Usuários', $id, 'Usuário atualizado: ' . $nome . '.', $dadosAnteriores, ['nome' => $nome, 'email' => strtolower($email), 'perfil' => $perfil, 'ativo' => (int) $usuario['ativo'], 'senha_alterada' => $senha !== '']);
+
+                if ($id === (int) $_SESSION['usuario_id']) {
+                    $_SESSION['usuario_nome'] = $nome;
+                    $_SESSION['usuario_perfil'] = $perfil;
+                }
+
                 definirMensagem('sucesso', 'Usuário atualizado com sucesso!');
                 header('Location: ' . BASE_URL . '/users/list.php');
                 exit;
@@ -77,6 +94,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Editar Usuário</h1>
 
     <?php if ($erro): ?>
@@ -93,7 +111,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
         <input type="email" name="email" id="email" required value="<?php echo limpar($usuario['email']); ?>">
 
         <label for="senha">Nova Senha</label>
-        <input type="password" name="senha" id="senha" minlength="6" placeholder="Deixe em branco para manter a senha atual">
+        <input type="password" name="senha" id="senha" minlength="8" placeholder="Deixe em branco para manter a senha atual">
 
         <label for="perfil">Perfil *</label>
         <select name="perfil" id="perfil" required>

@@ -50,6 +50,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Relatório de Produtos</h1>
 
     <form method="GET" action="" class="form-filtros">
@@ -76,7 +77,9 @@ require_once __DIR__ . '/../includes/sidebar.php';
         </select>
         <button type="submit" class="botao">Filtrar</button>
         <a href="<?php echo BASE_URL; ?>/reports/products.php" class="botao botao-secundario">Limpar</a>
-        <button type="button" class="botao botao-secundario" onclick="window.print()">Imprimir</button>
+        <?php $exportQuery = http_build_query(array_merge($_GET, ['report' => 'products'])); ?>
+        <a href="<?php echo BASE_URL; ?>/reports/export_csv.php?<?php echo limpar($exportQuery); ?>" class="botao botao-secundario">Exportar CSV</a>
+        <button type="button" class="botao botao-secundario" onclick="window.print()">Imprimir / PDF</button>
     </form>
 
     <p class="resumo-relatorio">
@@ -87,6 +90,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
     <?php if (empty($produtos)): ?>
         <p class="texto-vazio">Nenhum produto encontrado para os filtros selecionados.</p>
     <?php else: ?>
+        <div class="tabela-responsiva">
         <table class="tabela">
             <thead>
                 <tr>
@@ -108,6 +112,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     <?php endif; ?>
 </div>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

@@ -86,9 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         $erro = 'A senha atual está incorreta.';
 
-                    } elseif (strlen($novaSenha) < 6) {
+                    } elseif (strlen($novaSenha) < 8) {
 
-                        $erro = 'A nova senha deve ter no mínimo 6 caracteres.';
+                        $erro = 'A nova senha deve ter no mínimo 8 caracteres.';
 
                     } elseif ($novaSenha !== $confirmarSenha) {
 
@@ -137,6 +137,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ]);
                     }
 
+                    registrarAuditoria(
+                        'EDITAR',
+                        'Minha Conta',
+                        $usuarioId,
+                        'Dados da própria conta atualizados.',
+                        ['nome' => $usuario['nome'], 'email' => $usuario['email']],
+                        ['nome' => $nome, 'email' => $email, 'senha_alterada' => $alterandoSenha]
+                    );
+
                     // Atualiza o nome mostrado no cabeçalho
                     $_SESSION['usuario_nome'] = $nome;
 
@@ -163,6 +172,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <h1>Minha Conta</h1>
 
@@ -222,7 +232,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
         <div class="campo-senha">
 
-            <input type="password" name="nova_senha" id="nova_senha" minlength="6" autocomplete="new-password">
+            <input type="password" name="nova_senha" id="nova_senha" minlength="8" autocomplete="new-password">
 
             <button type="button" class="botao-mostrar-senha" data-target="nova_senha" aria-controls="nova_senha"
                 aria-pressed="false">
@@ -237,7 +247,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
         <div class="campo-senha">
 
-            <input type="password" name="confirmar_senha" id="confirmar_senha" minlength="6"
+            <input type="password" name="confirmar_senha" id="confirmar_senha" minlength="8"
                 autocomplete="new-password">
 
             <button type="button" class="botao-mostrar-senha" data-target="confirmar_senha"

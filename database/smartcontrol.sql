@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS logs_auditoria;
 DROP TABLE IF EXISTS recuperacoes_senha;
 DROP TABLE IF EXISTS verificacoes_email;
 DROP TABLE IF EXISTS tentativas_login;
+DROP TABLE IF EXISTS api_tokens;
 DROP TABLE IF EXISTS movimentacoes;
 DROP TABLE IF EXISTS produtos;
 DROP TABLE IF EXISTS fornecedores;
@@ -69,10 +70,18 @@ CREATE TABLE fornecedores (
     cnpj_cpf VARCHAR(20) NULL,
     telefone VARCHAR(20) NULL,
     email VARCHAR(150) NULL,
+    cep VARCHAR(9) NULL,
+    logradouro VARCHAR(150) NULL,
+    numero VARCHAR(20) NULL,
+    complemento VARCHAR(100) NULL,
+    bairro VARCHAR(100) NULL,
+    cidade VARCHAR(100) NULL,
+    uf CHAR(2) NULL,
     endereco VARCHAR(255) NULL,
     ativo TINYINT(1) NOT NULL DEFAULT 1,
     data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_fornecedores_nome (nome),
+    KEY idx_fornecedores_documento (cnpj_cpf),
     KEY idx_fornecedores_ativo (ativo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -115,20 +124,32 @@ CREATE TABLE movimentacoes (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     produto_id INT UNSIGNED NOT NULL,
     usuario_id INT UNSIGNED NOT NULL,
+    fornecedor_id INT UNSIGNED NULL,
     tipo ENUM('entrada', 'saida') NOT NULL,
     quantidade INT UNSIGNED NOT NULL,
-    observacao VARCHAR(255) NULL,
+    saldo_anterior INT NOT NULL,
+    saldo_posterior INT NOT NULL,
+    origem VARCHAR(30) NOT NULL DEFAULT 'manual',
+    motivo VARCHAR(100) NULL,
+    valor_unitario DECIMAL(10, 2) NULL,
+    referencia VARCHAR(100) NULL,
+    observacao VARCHAR(500) NULL,
     data_movimentacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_mov_produto (produto_id),
     KEY idx_mov_usuario (usuario_id),
+    KEY idx_mov_fornecedor (fornecedor_id),
     KEY idx_mov_tipo (tipo),
+    KEY idx_mov_origem (origem),
     KEY idx_mov_data (data_movimentacao),
     CONSTRAINT fk_mov_produto
         FOREIGN KEY (produto_id) REFERENCES produtos(id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_mov_usuario
         FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-        ON UPDATE CASCADE ON DELETE RESTRICT
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_mov_fornecedor
+        FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
+        ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
@@ -152,6 +173,23 @@ CREATE TABLE tentativas_login (
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_tentativas_bloqueio (email, ip, sucesso, criado_em),
     KEY idx_tentativas_criado_em (criado_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE api_tokens (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT UNSIGNED NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    expira_em DATETIME NULL,
+    ultimo_uso_em DATETIME NULL,
+    revogado_em DATETIME NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_api_tokens_hash (token_hash),
+    KEY idx_api_tokens_usuario (usuario_id),
+    KEY idx_api_tokens_validade (expira_em, revogado_em),
+    CONSTRAINT fk_api_tokens_usuario
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE recuperacoes_senha (
@@ -297,21 +335,10 @@ CREATE TABLE anexos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- Dados iniciais
--- Senha do administrador de demonstração: admin123
--- Troque a senha após o primeiro acesso em "Minha Conta".
+-- Dados iniciais não sensíveis
 -- ---------------------------------------------------------------------
-INSERT INTO usuarios
-    (nome, email, email_verificado_em, senha, perfil, ativo)
-VALUES
-    (
-        'Administrador',
-        'admin@smartcontrol.com',
-        NOW(),
-        '$2y$12$QWB8TAqlYN4Cf0StqTuE/OsSGxuA4bYybxYXBbOI1s9.8.Gfdiwy6',
-        'administrador',
-        1
-    );
+-- O primeiro administrador deve ser criado após a importação executando:
+-- php scripts/create_admin.php
 
 INSERT INTO categorias (nome, descricao, ativo) VALUES
     ('Informática', 'Produtos de informática em geral', 1),

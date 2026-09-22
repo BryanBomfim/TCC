@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $stmt = $pdo->prepare("INSERT INTO categorias (nome, descricao, ativo) VALUES (:nome, :descricao, 1)");
             $stmt->execute([':nome' => $nome, ':descricao' => $descricao ?: null]);
+            $categoriaId = (int) $pdo->lastInsertId();
+            registrarAuditoria('CRIAR', 'Categorias', $categoriaId, 'Categoria cadastrada: ' . $nome . '.', null, ['nome' => $nome, 'descricao' => $descricao ?: null, 'ativo' => 1]);
 
             definirMensagem('sucesso', 'Categoria cadastrada com sucesso!');
             header('Location: ' . BASE_URL . '/categories/list.php');
@@ -34,6 +36,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Nova Categoria</h1>
 
     <?php if ($erro): ?>

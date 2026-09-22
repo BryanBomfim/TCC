@@ -30,11 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'O nome da categoria é obrigatório.';
         } else {
             $stmtUpdate = $pdo->prepare("UPDATE categorias SET nome = :nome, descricao = :descricao WHERE id = :id");
+            $dadosAnteriores = ['nome' => $categoria['nome'], 'descricao' => $categoria['descricao'], 'ativo' => (int) $categoria['ativo']];
             $stmtUpdate->execute([
                 ':nome' => $nome,
                 ':descricao' => $descricao ?: null,
                 ':id' => $id
             ]);
+            registrarAuditoria('EDITAR', 'Categorias', $id, 'Categoria atualizada: ' . $nome . '.', $dadosAnteriores, ['nome' => $nome, 'descricao' => $descricao ?: null, 'ativo' => (int) $categoria['ativo']]);
 
             definirMensagem('sucesso', 'Categoria atualizada com sucesso!');
             header('Location: ' . BASE_URL . '/categories/list.php');
@@ -49,6 +51,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Editar Categoria</h1>
 
     <?php if ($erro): ?>

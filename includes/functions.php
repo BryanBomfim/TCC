@@ -25,7 +25,7 @@ function exigirLogin(): void
 /** Verifica se o usuário logado é administrador. */
 function ehAdministrador(): bool
 {
-    return estaLogado() && $_SESSION['usuario_perfil'] === 'administrador';
+    return estaLogado() && ($_SESSION['usuario_perfil'] ?? '') === 'administrador';
 }
 
 /** Bloqueia o acesso de quem não é administrador, exibindo erro 403. */
@@ -129,16 +129,14 @@ function registrarAuditoria(
     global $pdo;
 
     /*
-     * Auditoria só é registrada quando existe
-     * um usuário autenticado.
+     * Eventos de segurança podem acontecer antes da autenticação.
+     * Nesses casos o banco aceita usuário nulo e preserva IP/descrição.
      */
-    if (!isset($_SESSION['usuario_id'])) {
-        return;
-    }
+    $usuarioId = isset($_SESSION['usuario_id'])
+        ? (int) $_SESSION['usuario_id']
+        : null;
 
-    $usuarioId = (int) $_SESSION['usuario_id'];
-
-    $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
+    $usuarioNome = $_SESSION['usuario_nome'] ?? null;
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 
@@ -392,4 +390,73 @@ function obterInventarioAberto(): ?array
         return null;
     }
 }
+
+/**
+ * Renderiza breadcrumbs simples a partir da rota atual.
+ * Mantém a navegação consistente sem duplicar marcação em cada módulo.
+ */
+function renderizarBreadcrumbs(): void
+{
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $partes = array_values(array_filter(explode('/', trim($script, '/'))));
+    $arquivo = $partes ? array_pop($partes) : 'index.php';
+    $pasta = $partes ? end($partes) : '';
+
+    $secoes = [
+        'dashboard' => ['Dashboard', '/dashboard/index.php'],
+        'products' => ['Produtos', '/products/list.php'],
+        'categories' => ['Categorias', '/categories/list.php'],
+        'suppliers' => ['Fornecedores', '/suppliers/list.php'],
+        'stock' => ['Movimentações', '/stock/history.php'],
+        'inventory' => ['Inventário', '/inventory/index.php'],
+        'reports' => ['Relatórios', '/reports/index.php'],
+        'users' => ['Usuários', '/users/list.php'],
+        'audit' => ['Auditoria', '/audit/index.php'],
+        'settings' => ['Configurações', '/settings/index.php'],
+        'account' => ['Minha Conta', '/account/index.php'],
+        'notifications' => ['Notificações', '/notifications/index.php'],
+    ];
+
+    $paginas = [
+        'create.php' => 'Novo',
+        'edit.php' => 'Editar',
+        'view.php' => 'Detalhes',
+        'entry.php' => 'Entrada',
+        'exit.php' => 'Saída',
+        'adjust.php' => 'Ajuste',
+        'history.php' => 'Histórico',
+        'api.php' => 'API REST',
+        'products.php' => 'Produtos',
+        'movements.php' => 'Movimentações',
+        'categories.php' => 'Categorias',
+        'suppliers.php' => 'Fornecedores',
+        'users.php' => 'Usuários',
+        'low_stock.php' => 'Estoque baixo',
+        'out_of_stock.php' => 'Sem estoque',
+        'inventory.php' => 'Inventários',
+    ];
+
+    if (!isset($secoes[$pasta])) {
+        return;
+    }
+
+    [$secao, $rotaSecao] = $secoes[$pasta];
+    $arquivoInicial = in_array($arquivo, ['index.php', 'list.php'], true);
+
+    echo '<nav class="breadcrumbs" aria-label="Breadcrumb">';
+    if ($pasta !== 'dashboard') {
+        echo '<a href="' . limpar(BASE_URL . '/dashboard/index.php') . '">Dashboard</a>';
+        echo '<span aria-hidden="true">/</span>';
+    }
+
+    if ($arquivoInicial) {
+        echo '<span aria-current="page">' . limpar($secao) . '</span>';
+    } else {
+        echo '<a href="' . limpar(BASE_URL . $rotaSecao) . '">' . limpar($secao) . '</a>';
+        echo '<span aria-hidden="true">/</span>';
+        echo '<span aria-current="page">' . limpar($paginas[$arquivo] ?? 'Página') . '</span>';
+    }
+    echo '</nav>';
+}
+
 ?>

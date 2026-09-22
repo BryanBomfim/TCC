@@ -1,137 +1,188 @@
-# SmartControl - Sistema de Gerenciamento de Estoque
+# SmartControl
 
-Projeto de TCC desenvolvido em **PHP 8 puro**, **MySQL/MariaDB**, HTML, CSS e JavaScript, sem framework PHP. O sistema reúne cadastro de produtos, categorias, fornecedores, movimentações, inventário físico, relatórios, usuários, auditoria, anexos, notificações e autenticação.
+O **SmartControl** é um sistema web de gerenciamento de estoque desenvolvido como Trabalho de Conclusão de Curso. A aplicação mantém a proposta original em PHP puro e MySQL/MariaDB, mas organiza o fluxo de produtos, movimentações, inventários, relatórios, auditoria, notificações e integrações de forma rastreável e adequada para demonstração acadêmica.
 
-## Requisitos
+## Principais recursos
 
-- PHP 8.0 ou superior
+- autenticação com perfis de administrador e funcionário;
+- recuperação de senha e verificação de e-mail;
+- proteção contra tentativas repetidas de login;
+- cadastro de produtos, categorias e fornecedores;
+- SKU e código de barras para localização de produtos;
+- entrada, saída e ajuste administrativo de estoque;
+- saldo anterior/posterior e origem em cada nova movimentação;
+- inventário físico com contagem, divergências e ajuste ao finalizar;
+- dashboard com indicadores reais do banco;
+- relatórios com filtros, impressão/PDF pelo navegador e CSV;
+- API REST v1 autenticada;
+- consulta opcional de CEP (ViaCEP com fallback) e CNPJ;
+- notificações internas e auditoria administrativa;
+- anexos de produtos com validação de MIME e limite de tamanho;
+- recursos de acessibilidade e layout responsivo.
+
+## Stack
+
+- PHP 8+
 - MySQL 5.7+ ou MariaDB 10.4+
-- Extensões PHP: PDO MySQL, mbstring, openssl, ctype, filter e hash
-- Composer, para instalar o PHPMailer
-- XAMPP, WAMP, Laragon ou servidor equivalente
+- HTML5, CSS3 e JavaScript
+- Apache/XAMPP
+- Composer
+- PHPMailer
+
+Não é necessário Laravel, React, Node.js ou outro framework para executar o sistema.
 
 ## Instalação nova no XAMPP
 
-1. Coloque a pasta do projeto em `C:\xampp\htdocs\smartcontrol`.
-2. Inicie **Apache** e **MySQL** no XAMPP.
-3. Abra o phpMyAdmin e importe `database/smartcontrol.sql`.
-4. Na raiz do projeto, execute:
+1. Copie a pasta para `C:\xampp\htdocs\smartcontrol`.
+2. Inicie Apache e MySQL.
+3. Importe `database/smartcontrol.sql` pelo phpMyAdmin.
+4. Na raiz do projeto, execute `composer install`.
+5. Copie `.env.example` para `.env`.
+6. Ajuste somente o `.env` com as configurações do seu ambiente.
+7. Crie o primeiro administrador pelo terminal com `php scripts/create_admin.php`. No XAMPP/Windows, se `php` não estiver no PATH, use `C:\\xampp\\php\\php.exe scripts\\create_admin.php`.
+8. Acesse a URL configurada em `APP_URL`.
 
-   ```bash
-   composer install
-   ```
+Exemplo local:
 
-5. Confira `config/database.php`. O padrão do XAMPP é:
-   - banco: `smartcontrol`
-   - usuário: `root`
-   - senha: vazia
-6. Acesse `http://localhost/smartcontrol/`.
+```env
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost/smartcontrol
+APP_BASE_URL=/smartcontrol
 
-### Acesso inicial
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=smartcontrol
+DB_USER=root
+DB_PASSWORD=
+```
 
-- E-mail: `admin@smartcontrol.com`
-- Senha: `admin123`
+O `.env` é ignorado pelo Git e **não deve ser enviado ao repositório**.
 
-Troque essa senha após o primeiro acesso em **Minha Conta**.
+### Primeiro administrador
 
-## Atualizando um banco antigo
+A instalação limpa **não contém usuário ou senha administrativa padrão**. Depois de configurar o banco e o `.env`, execute `php scripts/create_admin.php` e informe nome, e-mail e uma senha própria. Isso evita credenciais conhecidas dentro do repositório.
 
-Se você já usava uma versão anterior do SmartControl, **não importe o arquivo de instalação nova por cima do seu banco**, pois ele recria as tabelas.
+## Atualizando uma instalação existente
 
-1. Faça backup do banco no phpMyAdmin.
-2. Importe `database/migrations/2026_09_08_atualizar_schema.sql`.
-3. Teste login, produtos, inventário, notificações e anexos.
+Faça backup antes de qualquer alteração no banco.
+
+Execute as migrações em ordem:
+
+1. `database/migrations/2026_09_08_atualizar_schema.sql`
+2. `database/migrations/2026_09_22_profissionalizacao.sql`
+
+Não importe `database/smartcontrol.sql` sobre um banco com dados, pois esse arquivo é destinado a uma instalação nova.
+
+Após a migração, execute `database/check_integrity.sql` para conferir inconsistências sem alterar dados e teste principalmente login, produtos, entradas, saídas, ajustes, inventário, relatórios e tokens da API.
 
 ## Configuração de e-mail
 
-O envio de e-mail é opcional para o restante do sistema funcionar.
+A configuração recomendada é pelo `.env`:
 
-1. Execute `composer install`.
-2. Copie `config/email.local.example.php` para `config/email.local.php`.
-3. Preencha os dados SMTP e a senha de app.
-4. `config/email.local.php` está no `.gitignore` e não deve ser enviado ao GitHub.
+```env
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=usuario@example.com
+SMTP_PASSWORD=senha-de-app-ficticia
+SMTP_FROM_EMAIL=nao-responda@example.com
+SMTP_FROM_NAME=SmartControl
+```
 
-Se o Composer ou o SMTP ainda não estiverem configurados, o sistema registra o problema no log e evita interromper a aplicação com erro fatal.
+O arquivo legado `config/email.local.php` continua compatível para instalações antigas, mas também é ignorado pelo Git. Nunca envie credenciais reais ao repositório.
 
-## Acessibilidade
+## API REST
 
-A barra global de acessibilidade está disponível nas páginas internas e nas telas de autenticação. Ela oferece:
+A API interna fica em `api/v1/`. Ela aceita a sessão autenticada do SmartControl ou um token Bearer criado por administrador em **Configurações > API REST**.
 
-- aumento, redução e restauração do tamanho do texto;
-- alto contraste;
-- destaque visual de links;
-- leitura do conteúdo em voz alta usando Web Speech quando suportado pelo navegador;
-- pausar, retomar e parar a leitura;
-- preferências persistidas em `localStorage`;
-- atalho `Alt + A` para abrir o painel;
-- foco de teclado visível;
-- link para pular diretamente ao conteúdo principal;
-- cabeçalhos de tabela com associação semântica;
-- alternativa textual acessível para o gráfico do dashboard;
-- suporte a `prefers-reduced-motion`.
+Exemplos de recursos disponíveis:
 
-A leitura em voz alta é um recurso auxiliar do navegador e não substitui leitores de tela completos como NVDA, JAWS ou VoiceOver.
+```text
+GET /api/v1/products
+GET /api/v1/categories
+GET /api/v1/suppliers
+GET /api/v1/inventory
+GET /api/v1/movements
+GET /api/v1/reports
+GET /api/v1/external/cep?cep=11740000
+GET /api/v1/external/cnpj?cnpj=00000000000000
+```
 
-Mais detalhes: `docs/ACESSIBILIDADE.md`.
+A API é deliberadamente de leitura para os recursos de negócio nesta versão. As movimentações continuam centralizadas nas telas transacionais do sistema, reduzindo o risco de criar caminhos paralelos que alterem estoque sem as mesmas regras de negócio.
+
+Veja `docs/API.md`.
 
 ## Estrutura principal
 
 ```text
 smartcontrol/
-├── account/                  # Conta do usuário
-├── assets/
-│   ├── css/
-│   │   ├── style.css         # Layout e componentes globais
-│   │   └── accessibility.css # Estados e painel de acessibilidade
-│   └── js/
-│       ├── script.js         # Menu, senhas e gráfico
-│       └── accessibility.js  # Preferências e leitura em voz alta
-├── attachments/              # Upload, visualização e exclusão de anexos
-├── audit/                    # Histórico de auditoria
-├── auth/                     # Login, logout e recuperação/verificação
-├── categories/               # Categorias
-├── config/                   # Banco, aplicação e e-mail
-├── dashboard/                # Painel principal
-├── database/
-│   ├── smartcontrol.sql      # Instalação nova
-│   └── migrations/           # Atualizações de banco existente
-├── docs/                     # Documentação técnica
-├── includes/                 # Componentes PHP compartilhados
-├── inventory/                # Inventário físico
-├── notifications/            # Notificações
-├── products/                 # Produtos
-├── reports/                  # Relatórios
-├── settings/                 # Configurações administrativas
-├── stock/                    # Entradas, saídas e histórico
-├── storage/uploads/          # Arquivos enviados pelo sistema
-├── suppliers/                # Fornecedores
-├── users/                    # Usuários
-├── composer.json
-├── composer.lock
-└── index.php
+├── account/              # Conta do usuário
+├── api/v1/               # API REST versionada
+├── assets/               # CSS e JavaScript
+├── attachments/          # Anexos de produtos
+├── audit/                # Auditoria administrativa
+├── auth/                 # Login e recuperação/verificação
+├── categories/           # Categorias
+├── config/               # Ambiente, banco e e-mail
+├── dashboard/            # Indicadores
+├── database/             # Instalação e migrações SQL
+├── docs/                 # Documentação técnica e acadêmica
+├── errors/               # Páginas 403/404/500
+├── includes/             # Funções e componentes compartilhados
+├── inventory/            # Inventário físico
+├── notifications/        # Central de notificações
+├── products/             # Produtos
+├── reports/              # Relatórios e exportações
+├── services/             # Integrações externas
+├── settings/             # Configurações e tokens de API
+├── stock/                # Entrada, saída, ajuste e histórico
+├── storage/uploads/      # Arquivos enviados
+├── suppliers/            # Fornecedores
+└── users/                # Usuários
 ```
 
-## Segurança já aplicada
+## Regras importantes de estoque
 
-- `password_hash()` e `password_verify()` para senhas;
-- PDO com prepared statements;
-- tokens CSRF nos formulários sensíveis;
-- sanitização de saída com `htmlspecialchars()` pela função `limpar()`;
-- limitação de tentativas de login;
-- tokens de recuperação e verificação armazenados como hash SHA-256;
-- controle de acesso por perfil;
-- validação de upload por tamanho, extensão e MIME real;
-- auditoria de operações importantes.
+- entradas, saídas, ajustes e finalização de inventário usam transações;
+- operações críticas bloqueiam o produto com `SELECT ... FOR UPDATE` antes da alteração;
+- uma saída não pode produzir saldo negativo;
+- o ajuste administrativo exige justificativa;
+- novas movimentações guardam saldo anterior, saldo posterior, origem, responsável e data/hora;
+- finalização de inventário preserva a contagem e registra os ajustes gerados.
 
-## Teste rápido depois da instalação
+## Segurança
 
-1. Entre como administrador.
-2. Cadastre uma categoria e um fornecedor.
-3. Cadastre um produto.
-4. Registre uma entrada e uma saída.
-5. Abra o inventário físico e salve uma contagem.
-6. Confira notificações e auditoria.
-7. Teste o painel de acessibilidade, inclusive por teclado.
-8. Teste a versão responsiva reduzindo a largura do navegador.
+Entre as proteções aplicadas estão:
 
-Consulte também `docs/TESTES.md`.
+- `password_hash()` e `password_verify()`;
+- PDO com prepared statements e emulação de prepares desabilitada;
+- CSRF em formulários de alteração;
+- escaping de saída HTML;
+- `session_regenerate_id()` no login;
+- cookies `HttpOnly`, `SameSite=Lax` e `Secure` sob HTTPS;
+- expiração da sessão por inatividade;
+- rate limiting de login;
+- autorização por perfil no backend;
+- hashes para tokens de recuperação, verificação e API;
+- headers HTTP de segurança;
+- erros técnicos apenas em log/ambiente de desenvolvimento;
+- validação de upload por MIME real;
+- proteção de `.env`, SQL, logs e arquivos Composer via Apache;
+- mitigação de fórmula em exportações CSV.
+
+Veja `docs/SECURITY.md`.
+
+## Documentação
+
+- `docs/ARCHITECTURE.md`: arquitetura e fluxos.
+- `docs/API.md`: autenticação, endpoints e exemplos.
+- `docs/DATABASE.md`: modelo e integridade do banco.
+- `docs/SECURITY.md`: controles e limitações de segurança.
+- `docs/TESTES.md`: checklist de testes manuais e verificações automatizáveis.
+- `docs/TCC.md`: material técnico para relatório/apresentação acadêmica.
+- `docs/AUDITORIA_FINAL.md`: síntese da auditoria e pendências conhecidas.
+- `docs/ACESSIBILIDADE.md`: recursos de acessibilidade.
+
+## Validação antes da apresentação
+
+Depois de instalar/migrar em uma cópia do banco, execute o checklist de `docs/TESTES.md`. Em especial, valide no XAMPP o ciclo completo **produto → entrada → saída → ajuste → inventário → histórico → relatório**, porque testes estáticos de código não substituem um banco MySQL/MariaDB real e um navegador.

@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // -----------------------------------------------------
             if ($totalTentativas >= $maxTentativas) {
 
+                registrarAuditoria('BLOQUEIO_LOGIN', 'Autenticação', null, 'Tentativa bloqueada temporariamente por excesso de falhas.', null, ['email' => $email]);
                 $erro =
                     'Muitas tentativas de login. '
                     . 'Aguarde 15 minutos e tente novamente.';
@@ -142,6 +143,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':email' => $email,
                         ':ip' => $ipUsuario
                     ]);
+
+                    registrarAuditoria(
+                        'FALHA_LOGIN',
+                        'Autenticação',
+                        null,
+                        'Falha de autenticação para o e-mail informado.',
+                        null,
+                        ['email' => $email]
+                    );
+
+                    if ($usuario && ($totalTentativas + 1) === ($maxTentativas - 1)) {
+                        $admins = $pdo->query("SELECT id FROM usuarios WHERE perfil = 'administrador' AND ativo = 1")->fetchAll();
+                        foreach ($admins as $admin) {
+                            criarNotificacao(
+                                (int) $admin['id'],
+                                'alerta',
+                                'Tentativas de acesso suspeitas',
+                                'Foram registradas várias tentativas de login sem sucesso para uma conta existente.',
+                                'usuario',
+                                (int) $usuario['id'],
+                                BASE_URL . '/audit/index.php'
+                            );
+                        }
+                    }
 
                     $tentativasRestantes =
                         $maxTentativas -
@@ -238,6 +263,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $_SESSION['usuario_perfil'] =
                         $usuario['perfil'];
+
+                    $_SESSION['ultima_atividade'] = time();
+                    $_SESSION['login_em'] = time();
+
+                    registrarAuditoria(
+                        'LOGIN',
+                        'Autenticação',
+                        (int) $usuario['id'],
+                        'Login realizado com sucesso.'
+                    );
 
                     /*
                      * Renova o token CSRF depois do login.

@@ -59,6 +59,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <div class="topo-pagina">
 

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Relatórios</h1>
     <p class="descricao-pagina">Selecione um relatório para consultar as informações do sistema.</p>
 
@@ -40,6 +41,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
         <a href="<?php echo BASE_URL; ?>/reports/low_stock.php" class="cartao-relatorio">
             <h3>Estoque Baixo</h3>
             <p>Produtos que atingiram ou estão abaixo do estoque mínimo definido.</p>
+        </a>
+        <a href="<?php echo BASE_URL; ?>/reports/out_of_stock.php" class="cartao-relatorio">
+            <h3>Sem Estoque</h3>
+            <p>Produtos ativos com saldo zerado e necessidade de reposição.</p>
+        </a>
+        <a href="<?php echo BASE_URL; ?>/reports/inventory.php" class="cartao-relatorio">
+            <h3>Inventários</h3>
+            <p>Contagens físicas, divergências e ajustes gerados pelos inventários.</p>
         </a>
     </div>
 </div>

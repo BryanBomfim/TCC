@@ -1,18 +1,29 @@
-    <?php
+<?php
 /**
- * config/email.php
- *
- * Configuração do envio de e-mails.
- * As credenciais reais ficam em email.local.php,
- * que NÃO deve ser enviado ao GitHub.
+ * Configuração de e-mail.
+ * Prioriza variáveis de ambiente e mantém email.local.php como fallback
+ * para instalações antigas.
  */
+
+require_once __DIR__ . '/environment.php';
+
+$host = (string) env('SMTP_HOST', '');
+
+if ($host !== '') {
+    return [
+        'host' => $host,
+        'porta' => (int) env('SMTP_PORT', 587),
+        'usuario' => (string) env('SMTP_USER', ''),
+        'senha' => (string) env('SMTP_PASSWORD', ''),
+        'remetente_email' => (string) env('SMTP_FROM_EMAIL', env('SMTP_USER', '')),
+        'remetente_nome' => (string) env('SMTP_FROM_NAME', 'SmartControl'),
+    ];
+}
 
 $configLocal = __DIR__ . '/email.local.php';
 
-if (!file_exists($configLocal)) {
-    throw new RuntimeException(
-        'Arquivo config/email.local.php não encontrado.'
-    );
+if (is_file($configLocal)) {
+    return require $configLocal;
 }
 
-return require $configLocal;
+throw new RuntimeException('SMTP não configurado. Defina as variáveis SMTP_* no .env.');

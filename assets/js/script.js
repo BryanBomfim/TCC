@@ -14,6 +14,8 @@
         configurarMenuLateral();
         configurarCamposSenha();
         configurarGraficoSemana();
+        configurarConsultasFornecedor();
+        configurarCopiarCampos();
     });
 
     function configurarMenuLateral() {
@@ -196,4 +198,112 @@
         ctx.textAlign = 'left';
         ctx.fillText(texto, x + 16, y + 10);
     }
+
+    function configurarCopiarCampos() {
+        document.querySelectorAll('[data-copy-target]').forEach(function (botao) {
+            botao.addEventListener('click', async function () {
+                var alvo = document.getElementById(botao.getAttribute('data-copy-target'));
+                if (!alvo) return;
+
+                try {
+                    await navigator.clipboard.writeText(alvo.value || alvo.textContent || '');
+                    var textoOriginal = botao.textContent;
+                    botao.textContent = 'Copiado';
+                    window.setTimeout(function () { botao.textContent = textoOriginal; }, 1400);
+                } catch (erro) {
+                    alvo.select();
+                    document.execCommand('copy');
+                }
+            });
+        });
+    }
+
+    function configurarConsultasFornecedor() {
+        var formulario = document.querySelector('[data-supplier-form]');
+        if (!formulario) return;
+
+        var baseUrl = document.body.getAttribute('data-base-url') || '';
+        var status = formulario.querySelector('[data-supplier-status]');
+        var botaoCep = formulario.querySelector('[data-consultar-cep]');
+        var botaoCnpj = formulario.querySelector('[data-consultar-cnpj]');
+
+        function campo(nome) {
+            return formulario.querySelector('[name="' + nome + '"]');
+        }
+
+        function preencher(nome, valor, sobrescrever) {
+            var elemento = campo(nome);
+            if (!elemento || valor === null || typeof valor === 'undefined' || valor === '') return;
+            if (sobrescrever || !elemento.value.trim()) elemento.value = valor;
+        }
+
+        async function consultar(url, botao) {
+            var textoOriginal = botao.textContent;
+            botao.disabled = true;
+            botao.textContent = 'Consultando...';
+            if (status) status.textContent = '';
+
+            try {
+                var resposta = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                var json = await resposta.json();
+                if (!resposta.ok || !json.success) throw new Error(json.message || 'Consulta indisponível.');
+                return json.data;
+            } catch (erro) {
+                if (status) status.textContent = erro.message + ' Você pode preencher os dados manualmente.';
+                return null;
+            } finally {
+                botao.disabled = false;
+                botao.textContent = textoOriginal;
+            }
+        }
+
+        if (botaoCep) {
+            botaoCep.addEventListener('click', async function () {
+                var cep = (campo('cep').value || '').replace(/\D/g, '');
+                if (cep.length !== 8) {
+                    if (status) status.textContent = 'Informe um CEP com 8 dígitos.';
+                    return;
+                }
+                var dados = await consultar(baseUrl + '/api/v1/external/cep.php?cep=' + encodeURIComponent(cep), botaoCep);
+                if (!dados) return;
+                preencher('cep', dados.cep, true);
+                preencher('logradouro', dados.logradouro, true);
+                preencher('complemento', dados.complemento, false);
+                preencher('bairro', dados.bairro, true);
+                preencher('cidade', dados.cidade, true);
+                preencher('uf', dados.uf, true);
+                if (status) status.textContent = 'Endereço preenchido pela ' + dados.fonte + '.';
+                var numero = campo('numero');
+                if (numero) numero.focus();
+            });
+        }
+
+        if (botaoCnpj) {
+            botaoCnpj.addEventListener('click', async function () {
+                var cnpj = (campo('cnpj_cpf').value || '').replace(/\D/g, '');
+                if (cnpj.length !== 14) {
+                    if (status) status.textContent = 'Para consulta automática, informe um CNPJ com 14 dígitos.';
+                    return;
+                }
+                var dados = await consultar(baseUrl + '/api/v1/external/cnpj.php?cnpj=' + encodeURIComponent(cnpj), botaoCnpj);
+                if (!dados) return;
+                preencher('nome', dados.razao_social || dados.nome_fantasia, false);
+                preencher('telefone', dados.telefone, false);
+                preencher('email', dados.email, false);
+                preencher('cep', dados.cep, false);
+                preencher('logradouro', dados.logradouro, false);
+                preencher('numero', dados.numero, false);
+                preencher('complemento', dados.complemento, false);
+                preencher('bairro', dados.bairro, false);
+                preencher('cidade', dados.cidade, false);
+                preencher('uf', dados.uf, false);
+                if (status) status.textContent = 'Dados empresariais preenchidos pela BrasilAPI.';
+            });
+        }
+    }
+
 }());

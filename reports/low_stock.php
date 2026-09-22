@@ -11,7 +11,7 @@ $stmt = $pdo->query("
     FROM produtos p
     LEFT JOIN categorias c ON c.id = p.categoria_id
     LEFT JOIN fornecedores f ON f.id = p.fornecedor_id
-    WHERE p.ativo = 1 AND p.quantidade_estoque <= p.estoque_minimo
+    WHERE p.ativo = 1 AND p.quantidade_estoque > 0 AND p.quantidade_estoque <= p.estoque_minimo
     ORDER BY p.quantidade_estoque ASC
 ");
 $produtos = $stmt->fetchAll();
@@ -20,9 +20,13 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <div class="topo-pagina">
         <h1>Relatório de Estoque Baixo</h1>
-        <button type="button" class="botao botao-secundario" onclick="window.print()">Imprimir</button>
+        <div class="acoes-formulario">
+            <a class="botao botao-secundario" href="<?php echo BASE_URL; ?>/reports/export_csv.php?report=low_stock">Exportar CSV</a>
+            <button type="button" class="botao botao-secundario" onclick="window.print()">Imprimir / PDF</button>
+        </div>
     </div>
 
     <p class="resumo-relatorio">
@@ -32,6 +36,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
     <?php if (empty($produtos)): ?>
         <p class="texto-vazio">Nenhum produto com estoque baixo no momento. Parabéns pela gestão!</p>
     <?php else: ?>
+        <div class="tabela-responsiva">
         <table class="tabela">
             <thead>
                 <tr><th scope="col">Produto</th><th scope="col">Categoria</th><th scope="col">Fornecedor</th><th scope="col">Estoque Atual</th><th scope="col">Estoque Mínimo</th></tr>
@@ -48,6 +53,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     <?php endif; ?>
 </div>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

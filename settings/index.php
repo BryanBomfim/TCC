@@ -19,12 +19,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($nomeSistema === '' || $nomeEmpresa === '') {
             $erro = 'Preencha os campos obrigatórios.';
+        } elseif ($estoqueMinimoPadrao !== '' && (!ctype_digit($estoqueMinimoPadrao) || (int) $estoqueMinimoPadrao < 0)) {
+            $erro = 'O estoque mínimo padrão deve ser um número inteiro igual ou maior que zero.';
         } else {
             $valores = [
                 'nome_sistema' => $nomeSistema,
                 'nome_empresa' => $nomeEmpresa,
                 'estoque_minimo_padrao' => $estoqueMinimoPadrao !== '' ? (int) $estoqueMinimoPadrao : 0,
             ];
+
+            $stmtAtuais = $pdo->query("SELECT chave, valor FROM configuracoes");
+            $antes = [];
+            foreach ($stmtAtuais->fetchAll() as $linhaAtual) {
+                $antes[$linhaAtual['chave']] = $linhaAtual['valor'];
+            }
 
             $stmt = $pdo->prepare("
                 INSERT INTO configuracoes (chave, valor) VALUES (:chave, :valor)
@@ -33,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($valores as $chave => $valor) {
                 $stmt->execute([':chave' => $chave, ':valor' => $valor]);
             }
+            registrarAuditoria('EDITAR', 'Configurações', null, 'Configurações gerais atualizadas.', $antes, $valores);
 
             definirMensagem('sucesso', 'Configurações atualizadas com sucesso!');
             header('Location: ' . BASE_URL . '/settings/index.php');
@@ -51,6 +60,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Configurações do Sistema</h1>
 
     <?php if ($erro): ?>

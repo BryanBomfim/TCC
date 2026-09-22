@@ -12,19 +12,22 @@ $totalProdutos = $pdo->query("SELECT COUNT(*) FROM produtos WHERE ativo = 1")->f
 $totalCategorias = $pdo->query("SELECT COUNT(*) FROM categorias WHERE ativo = 1")->fetchColumn();
 $totalFornecedores = $pdo->query("SELECT COUNT(*) FROM fornecedores WHERE ativo = 1")->fetchColumn();
 $totalUsuarios = ehAdministrador() ? $pdo->query("SELECT COUNT(*) FROM usuarios WHERE ativo = 1")->fetchColumn() : null;
+$totalUnidadesEstoque = (int) $pdo->query("SELECT COALESCE(SUM(quantidade_estoque), 0) FROM produtos WHERE ativo = 1")->fetchColumn();
+$qtdSemEstoque = (int) $pdo->query("SELECT COUNT(*) FROM produtos WHERE ativo = 1 AND quantidade_estoque = 0")->fetchColumn();
 
 // --- Produtos com estoque baixo ---
 $stmtBaixo = $pdo->query("
     SELECT id, nome, quantidade_estoque, estoque_minimo
     FROM produtos
-    WHERE ativo = 1 AND quantidade_estoque <= estoque_minimo
+    WHERE ativo = 1 AND quantidade_estoque > 0 AND quantidade_estoque <= estoque_minimo
     ORDER BY quantidade_estoque ASC
     LIMIT 8
 ");
 $produtosBaixoEstoque = $stmtBaixo->fetchAll();
-$qtdEstoqueBaixo = count($pdo->query("
-    SELECT id FROM produtos WHERE ativo = 1 AND quantidade_estoque <= estoque_minimo
-")->fetchAll());
+$qtdEstoqueBaixo = (int) $pdo->query("
+    SELECT COUNT(*) FROM produtos
+    WHERE ativo = 1 AND quantidade_estoque > 0 AND quantidade_estoque <= estoque_minimo
+")->fetchColumn();
 
 // --- Últimas movimentações ---
 $stmtMov = $pdo->query("
@@ -46,6 +49,14 @@ $stmtRecentes = $pdo->query("
     LIMIT 5
 ");
 $produtosRecentes = $stmtRecentes->fetchAll();
+
+$stmtInventarios = $pdo->query("
+    SELECT id, titulo, status, criado_em, finalizado_em
+    FROM inventarios
+    ORDER BY criado_em DESC, id DESC
+    LIMIT 5
+");
+$inventariosRecentes = $stmtInventarios->fetchAll();
 
 // --- Movimentações do dia (para o gráfico) ---
 $stmtDia = $pdo->prepare("
@@ -98,6 +109,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <h1>Dashboard</h1>
     <p class="descricao-pagina">Bem-vindo(a), <?php echo limpar(nomeUsuarioLogado()); ?>! Aqui está um resumo do
         sistema.</p>
@@ -106,6 +118,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
         <div class="cartao">
             <span class="cartao-titulo">Produtos</span>
             <span class="cartao-valor"><?php echo (int) $totalProdutos; ?></span>
+        </div>
+        <div class="cartao">
+            <span class="cartao-titulo">Unidades em estoque</span>
+            <span class="cartao-valor"><?php echo $totalUnidadesEstoque; ?></span>
+        </div>
+        <div class="cartao">
+            <span class="cartao-titulo">Sem estoque</span>
+            <span class="cartao-valor"><?php echo $qtdSemEstoque; ?></span>
         </div>
         <div class="cartao">
             <span class="cartao-titulo">Categorias</span>
@@ -250,6 +270,32 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </table>
             <?php endif; ?>
         </div>
+    </div>
+
+    <div class="painel">
+        <div class="topo-pagina">
+            <h2>Inventários recentes</h2>
+            <a href="<?php echo BASE_URL; ?>/inventory/index.php">Ver inventários</a>
+        </div>
+        <?php if (empty($inventariosRecentes)): ?>
+            <p class="texto-vazio">Nenhum inventário registrado.</p>
+        <?php else: ?>
+            <div class="tabela-responsiva">
+                <table class="tabela">
+                    <thead><tr><th scope="col">Inventário</th><th scope="col">Status</th><th scope="col">Criado em</th><th scope="col">Finalizado em</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($inventariosRecentes as $inventario): ?>
+                        <tr>
+                            <td><a href="<?php echo BASE_URL; ?>/inventory/view.php?id=<?php echo (int) $inventario['id']; ?>"><?php echo limpar($inventario['titulo']); ?></a></td>
+                            <td><?php echo limpar(ucfirst($inventario['status'])); ?></td>
+                            <td><?php echo formatarDataHora($inventario['criado_em']); ?></td>
+                            <td><?php echo formatarDataHora($inventario['finalizado_em']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

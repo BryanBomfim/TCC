@@ -19,6 +19,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
     <div class="topo-pagina">
         <h1>Relatório de Categorias</h1>
         <button type="button" class="botao botao-secundario" onclick="window.print()">Imprimir</button>

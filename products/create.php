@@ -173,6 +173,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /*
              * ----------------------------------------------------
+             * Valida relacionamentos informados no backend
+             * ----------------------------------------------------
+             */
+            if ($erro === '' && $dados['categoria_id'] !== '') {
+                $stmtCategoria = $pdo->prepare("SELECT id FROM categorias WHERE id = :id AND ativo = 1 LIMIT 1");
+                $stmtCategoria->execute([':id' => (int) $dados['categoria_id']]);
+                if (!$stmtCategoria->fetchColumn()) {
+                    $erro = 'A categoria selecionada é inválida ou está inativa.';
+                }
+            }
+
+            if ($erro === '' && $dados['fornecedor_id'] !== '') {
+                $stmtFornecedor = $pdo->prepare("SELECT id FROM fornecedores WHERE id = :id AND ativo = 1 LIMIT 1");
+                $stmtFornecedor->execute([':id' => (int) $dados['fornecedor_id']]);
+                if (!$stmtFornecedor->fetchColumn()) {
+                    $erro = 'O fornecedor selecionado é inválido ou está inativo.';
+                }
+            }
+
+            /*
+             * ----------------------------------------------------
              * Cadastra somente se não houver erro
              * ----------------------------------------------------
              */
@@ -308,6 +329,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':sku' => $sku,
                         ':id' => $produtoId
                     ]);
+
+                    /*
+                     * ------------------------------------------------
+                     * ESTOQUE INICIAL
+                     * ------------------------------------------------
+                     * Se o produto nascer com saldo, a entrada também
+                     * precisa existir no histórico para manter a trilha
+                     * completa desde o primeiro dia.
+                     */
+                    $estoqueInicial = $dados['quantidade_estoque'] !== ''
+                        ? (int) $dados['quantidade_estoque']
+                        : 0;
+
+                    if ($estoqueInicial > 0) {
+                        $stmtMovimentoInicial = $pdo->prepare("
+                            INSERT INTO movimentacoes
+                            (
+                                produto_id, usuario_id, fornecedor_id, tipo, quantidade,
+                                saldo_anterior, saldo_posterior, origem, motivo, referencia, observacao
+                            )
+                            VALUES
+                            (
+                                :produto_id, :usuario_id, :fornecedor_id, 'entrada', :quantidade,
+                                0, :saldo_posterior, 'cadastro', 'Estoque inicial', 'Cadastro do produto',
+                                'Saldo informado no cadastro inicial do produto.'
+                            )
+                        ");
+                        $stmtMovimentoInicial->execute([
+                            ':produto_id' => $produtoId,
+                            ':usuario_id' => (int) $_SESSION['usuario_id'],
+                            ':fornecedor_id' => $dados['fornecedor_id'] !== '' ? (int) $dados['fornecedor_id'] : null,
+                            ':quantidade' => $estoqueInicial,
+                            ':saldo_posterior' => $estoqueInicial,
+                        ]);
+                    }
 
                     /*
                      * ------------------------------------------------
@@ -484,6 +540,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <h1>
         Novo Produto

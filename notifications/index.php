@@ -127,6 +127,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
 <div class="conteudo" id="conteudo-principal" tabindex="-1">
+    <?php renderizarBreadcrumbs(); ?>
 
     <!-- =========================================================
          CABEÇALHO
@@ -261,7 +262,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <?php if ($notificacao['tipo'] === 'critico'): ?>
 
                         <strong>
-                            🔴
+                            <span class="notificacao-marcador notificacao-critico" aria-hidden="true"></span>
                             <?php
                             echo limpar(
                                 $notificacao['titulo']
@@ -272,7 +273,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <?php elseif ($notificacao['tipo'] === 'alerta'): ?>
 
                         <strong>
-                            ⚠️
+                            <span class="notificacao-marcador notificacao-alerta" aria-hidden="true"></span>
                             <?php
                             echo limpar(
                                 $notificacao['titulo']
@@ -283,7 +284,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <?php elseif ($notificacao['tipo'] === 'sucesso'): ?>
 
                         <strong>
-                            ✅
+                            <span class="notificacao-marcador notificacao-sucesso" aria-hidden="true"></span>
                             <?php
                             echo limpar(
                                 $notificacao['titulo']
@@ -294,7 +295,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <?php else: ?>
 
                         <strong>
-                            ℹ️
+                            <span class="notificacao-marcador notificacao-info" aria-hidden="true"></span>
                             <?php
                             echo limpar(
                                 $notificacao['titulo']

@@ -1354,3 +1354,110 @@ input[type="radio"] {
         min-width: 0;
     }
 }
+
+/* Complementos profissionais: tabelas, integrações e API */
+.tabela-responsiva {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+}
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.paginacao a {
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.campo-com-acao,
+.campo-copia {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.campo-com-acao input,
+.campo-copia input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ajuda-campo {
+    display: block;
+    min-height: 1.25rem;
+    color: #475467;
+    font-size: 0.9rem;
+    margin-top: -8px;
+    margin-bottom: 0.75rem;
+}
+
+.campo-flex-maior {
+    flex: 2 1 360px !important;
+}
+
+.painel-token-api input[readonly] {
+    font-family: Consolas, "Courier New", monospace;
+}
+
+.icone-notificacao svg {
+    display: block;
+}
+
+@media (max-width: 640px) {
+    .campo-com-acao,
+    .campo-copia {
+        flex-direction: column;
+    }
+}
+
+
+/* Indicadores semânticos de notificações (sem emojis de interface). */
+.notificacao-marcador {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    margin-right: 0.45rem;
+    background: #667085;
+}
+.notificacao-critico { background: #b42318; }
+.notificacao-alerta { background: #b54708; }
+.notificacao-sucesso { background: #237a3b; }
+.notificacao-info { background: #175cd3; }
+
+
+/* Breadcrumbs compartilhados */
+.breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 18px;
+    color: var(--cor-texto-suave);
+    font-size: 0.82rem;
+}
+.breadcrumbs a {
+    color: var(--cor-primaria);
+    text-decoration: none;
+}
+.breadcrumbs a:hover,
+.breadcrumbs a:focus-visible {
+    text-decoration: underline;
+}
+.breadcrumbs [aria-current="page"] {
+    color: var(--cor-texto);
+    font-weight: 600;
+}
+
+/* Melhorias adicionadas na evolução profissional */
+.token-api { display: block; margin-top: .75rem; padding: .75rem; overflow-wrap: anywhere; user-select: all; }
+.icone-notificacao { display: inline-flex; align-items: center; justify-content: center; }
+.grade-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 720px) { .grade-campos { grid-template-columns: 1fr; } }

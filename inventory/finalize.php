@@ -284,6 +284,11 @@ try {
             usuario_id,
             tipo,
             quantidade,
+            saldo_anterior,
+            saldo_posterior,
+            origem,
+            motivo,
+            referencia,
             observacao
         )
         VALUES
@@ -292,6 +297,11 @@ try {
             :usuario_id,
             :tipo,
             :quantidade,
+            :saldo_anterior,
+            :saldo_posterior,
+            'inventario',
+            'Ajuste de inventário',
+            :referencia,
             :observacao
         )
     ");
@@ -370,6 +380,15 @@ try {
                 ':quantidade' =>
                     $quantidadeAjuste,
 
+                ':saldo_anterior' =>
+                    $estoqueSistema,
+
+                ':saldo_posterior' =>
+                    $quantidadeContada,
+
+                ':referencia' =>
+                    'Inventário #' . $inventarioId,
+
                 ':observacao' =>
                     'Ajuste do inventário #'
                     . $inventarioId
@@ -405,6 +424,15 @@ try {
 
                 ':quantidade' =>
                     $quantidadeAjuste,
+
+                ':saldo_anterior' =>
+                    $estoqueSistema,
+
+                ':saldo_posterior' =>
+                    $quantidadeContada,
+
+                ':referencia' =>
+                    'Inventário #' . $inventarioId,
 
                 ':observacao' =>
                     'Ajuste do inventário #'
