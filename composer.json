@@ -1,0 +1,29 @@
+{
+    "name": "smartcontrol/estoque",
+    "description": "Sistema de gerenciamento e controle de estoque desenvolvido como TCC.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-fileinfo": "*",
+        "ext-filter": "*",
+        "ext-hash": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "SmartControl\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "php tests/run.php",
+        "test:http": "@php -r \"putenv('RUN_HTTP_SMOKE=1'); require 'tests/run.php';\"",
+        "test:unit": "@php tests/unit.php"
+    }
+}

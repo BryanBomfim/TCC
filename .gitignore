@@ -1,0 +1,15 @@
+/config/email.local.php
+/.env
+/vendor/
+/storage/uploads/*
+!/storage/uploads/.htaccess
+!/storage/uploads/products/
+!/storage/uploads/products/.gitkeep
+/storage/logs/*
+!/storage/logs/.htaccess
+!/storage/logs/.gitkeep
+.DS_Store
+Thumbs.db
+
+/storage/uploads/products/*
+!/storage/uploads/products/.gitkeep
