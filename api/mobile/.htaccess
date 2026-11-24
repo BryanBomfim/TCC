@@ -1,0 +1,8 @@
+# Apache 2.4: preservar Authorization em instalações CGI/FastCGI.
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1
+</IfModule>
+# Apenas index.php é endpoint público. Scripts de manutenção rodam no terminal.
+<FilesMatch "^(config|api|validation|migrate|install_admin|test_validation|test_http).*">
+    Require all denied
+</FilesMatch>

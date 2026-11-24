@@ -13,3 +13,7 @@ Thumbs.db
 
 /storage/uploads/products/*
 !/storage/uploads/products/.gitkeep
+
+# Estado local do acesso móvel pela internet
+/mobile/ENDERECO_DO_SERVIDOR.txt
+/tunnel-logs/

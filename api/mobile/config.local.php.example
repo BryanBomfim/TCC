@@ -1,0 +1,14 @@
+<?php
+// Copie como config.local.php no servidor PHP. Nunca coloque isto no Flutter.
+// Use exatamente o mesmo banco configurado em ../../config/database.php.
+return [
+    'host' => '127.0.0.1',
+    'port' => 3306,
+    'database' => 'smartcontrol',
+    'username' => 'root',
+    'password' => '',
+    // Se testar Flutter Web, acrescente somente a origem exata do navegador.
+    // Android e iOS não precisam de CORS.
+    'allowed_origins' => [], // Ex.: ['http://localhost:5000']
+    'token_hours' => 24,
+];
