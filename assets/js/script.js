@@ -402,3 +402,18 @@
         ctx.fillText(texto, x + 16, y + 10);
     }
 }());
+
+// Modal nativo: contém o foco, fecha com Escape e devolve o foco ao botão.
+document.querySelectorAll('[data-audit-open]').forEach(function (button) {
+    var dialog = document.getElementById(button.dataset.auditOpen);
+    if (!dialog) return;
+    button.addEventListener('click', function () {
+        dialog.showModal();
+        document.body.classList.add('auditoria-modal-aberto');
+    });
+    dialog.querySelector('[data-audit-close]').addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('close', function () {
+        document.body.classList.remove('auditoria-modal-aberto');
+        button.focus();
+    });
+});

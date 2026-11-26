@@ -473,11 +473,19 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
                             <?php if ($possuiDetalhes): ?>
 
-                                <details>
+                                <button type="button" class="botao botao-secundario" data-audit-open="audit-<?php echo (int) $log['id']; ?>" aria-haspopup="dialog">Ver detalhes</button>
+                                <dialog class="auditoria-dialog" id="audit-<?php echo (int) $log['id']; ?>" aria-labelledby="audit-title-<?php echo (int) $log['id']; ?>">
+                                    <div class="auditoria-dialog-topo">
+                                        <div>
+                                            <h2 id="audit-title-<?php echo (int) $log['id']; ?>">Detalhes da auditoria</h2>
+                                            <p><?php echo limpar($log['acao']); ?> · <?php echo limpar($log['modulo']); ?> · <?php echo formatarDataHora($log['criado_em']); ?></p>
+                                        </div>
+                                        <button type="button" class="botao botao-secundario" data-audit-close autofocus>Fechar</button>
+                                    </div>
+                                    <div class="auditoria-dialog-corpo">
+                                        <p><?php echo limpar($log['descricao']); ?></p>
 
-                                    <summary class="detalhes-clicavel">
-                                        Ver detalhes
-                                    </summary>
+
 
                                     <?php
 
@@ -526,7 +534,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
                                     <?php if (!empty($campos)): ?>
 
-                                        <table class="tabela">
+                                        <table class="tabela auditoria-comparacao">
 
                                             <thead>
 
@@ -664,7 +672,8 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
                                     <?php endif; ?>
 
-                                </details>
+                                </div>
+                                </dialog>
                             <?php else: ?>
 
                                 <span class="texto-esmaecido">

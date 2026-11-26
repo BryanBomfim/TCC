@@ -1522,3 +1522,35 @@ input[type="radio"] {
         display: none !important;
     }
 }
+
+/* Detalhes da auditoria: painel independente da largura da listagem. */
+.auditoria-dialog {
+    width: min(900px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: 85dvh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+    box-shadow: var(--sombra-elevada);
+    white-space: normal;
+}
+.auditoria-dialog::backdrop { background: rgba(1, 11, 33, .65); }
+.auditoria-dialog[open] { display: flex; flex-direction: column; }
+.auditoria-dialog-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--cor-borda); }
+.auditoria-dialog-topo h2 { margin: 0 0 6px; font-size: 1.2rem; }
+.auditoria-dialog-topo p { margin: 0; color: var(--cor-texto-suave); font-size: .85rem; }
+.auditoria-dialog-corpo { overflow: auto; padding: 20px 24px; min-height: 0; }
+.auditoria-dialog-corpo > p:first-child { margin-top: 0; }
+.auditoria-dialog .auditoria-comparacao { width: 100%; min-width: 0; table-layout: fixed; margin: 16px 0; }
+.auditoria-dialog .auditoria-comparacao th,
+.auditoria-dialog .auditoria-comparacao td { white-space: normal; overflow-wrap: anywhere; vertical-align: top; padding: 12px; }
+.auditoria-comparacao th:first-child { width: 28%; }
+body.auditoria-modal-aberto { overflow: hidden; }
+@media (max-width: 600px) {
+    .auditoria-dialog-topo, .auditoria-dialog-corpo { padding: 14px; }
+    .auditoria-dialog .auditoria-comparacao th,
+    .auditoria-dialog .auditoria-comparacao td { padding: 8px 6px; font-size: .8rem; }
+}
