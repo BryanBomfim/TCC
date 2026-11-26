@@ -341,6 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="subtitulo">
             Sistema de Gerenciamento de Estoque
         </p>
+        <p class="link-recuperacao"><a href="<?php echo BASE_URL; ?>/">Conheça o SmartControl</a></p>
 
         <?php if ($mensagem): ?>
             <div class="alerta alerta-<?php echo limpar($mensagem['tipo']); ?>" role="status" aria-live="polite">
